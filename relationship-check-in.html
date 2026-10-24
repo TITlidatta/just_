@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#183a36">
+  <title>A closer kind of us</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #183a36;
+      --paper: #f5f2e9;
+      --green: #234b43;
+      --lime: #d4ef87;
+      --coral: #ed8067;
+      --muted: #777e72;
+      --line: #deded1;
+      --white: #fffef9;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "DM Sans", sans-serif;
+    }
+
+    button { font: inherit; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.78fr) minmax(0, 1.22fr);
+      min-height: 100vh;
+    }
+
+    .side-panel {
+      position: relative;
+      display: flex;
+      min-height: 100vh;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      padding: clamp(30px, 5vw, 72px);
+      background-color: var(--green);
+      background-image: radial-gradient(ellipse at 15% 95%, rgba(212, 239, 135, .12), transparent 43%),
+                        linear-gradient(145deg, transparent 60%, rgba(12, 40, 36, .28));
+      color: var(--white);
+    }
+
+    .side-panel::after {
+      position: absolute;
+      right: -100px;
+      bottom: 18%;
+      width: 290px;
+      height: 290px;
+      border: 1px solid rgba(212, 239, 135, .25);
+      border-radius: 50%;
+      box-shadow: 0 0 0 32px rgba(212, 239, 135, .035), 0 0 0 64px rgba(212, 239, 135, .025);
+      content: "";
+      pointer-events: none;
+    }
+
+    .wordmark, .eyebrow, .question-count, .progress-label, .privacy-note {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+    }
+
+    .wordmark { color: var(--lime); }
+
+    .side-copy { position: relative; z-index: 1; max-width: 430px; margin: auto 0; padding: 50px 0; }
+
+    .side-copy h1 {
+      max-width: 420px;
+      margin: 0 0 22px;
+      font-family: "DM Serif Display", Georgia, serif;
+      font-size: clamp(48px, 6.2vw, 84px);
+      font-weight: 400;
+      line-height: .98;
+    }
+
+    .side-copy h1 em { color: var(--lime); font-weight: 400; }
+
+    .side-copy p {
+      max-width: 320px;
+      margin: 0;
+      color: rgba(255, 254, 249, .73);
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .side-bottom { position: relative; z-index: 1; }
+
+    .progress-label { display: flex; justify-content: space-between; margin-bottom: 12px; color: rgba(255, 254, 249, .68); }
+    .progress-track { height: 3px; overflow: hidden; background: rgba(255, 254, 249, .2); }
+    .progress-fill { width: 10%; height: 100%; background: var(--lime); transition: width .35s ease; }
+
+    .main-panel {
+      display: flex;
+      min-width: 0;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(28px, 6vw, 88px);
+    }
+
+    .quiz { width: min(100%, 650px); animation: arrive .45s ease both; }
+
+    .topline { display: flex; align-items: center; justify-content: space-between; margin-bottom: clamp(36px, 6vh, 68px); }
+    .eyebrow { color: #66766b; }
+    .question-count { color: var(--muted); }
+
+    .question-title {
+      margin: 0 0 34px;
+      font-family: "DM Serif Display", Georgia, serif;
+      font-size: clamp(30px, 4vw, 48px);
+      font-weight: 400;
+      line-height: 1.14;
+      text-wrap: pretty;
+    }
+
+    .answers { display: grid; gap: 11px; }
+
+    .answer {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr) 20px;
+      min-height: 66px;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 17px;
+      border: 1px solid var(--line);
+      background: rgba(255, 254, 249, .62);
+      cursor: pointer;
+      text-align: left;
+      transition: border-color .18s ease, background .18s ease, transform .18s ease;
+    }
+
+    .answer:hover { transform: translateY(-1px); border-color: #899981; }
+    .answer[aria-checked="true"] { border-color: var(--green); background: #e7efda; }
+
+    .answer-key {
+      display: grid;
+      width: 30px;
+      height: 30px;
+      place-items: center;
+      border: 1px solid #cfd2c6;
+      border-radius: 50%;
+      color: #617067;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .answer[aria-checked="true"] .answer-key { border-color: var(--green); background: var(--green); color: white; }
+    .answer-text { font-size: 14px; line-height: 1.55; }
+
+    .answer-check { width: 17px; height: 17px; border: 1px solid #cfd2c6; border-radius: 50%; }
+    .answer[aria-checked="true"] .answer-check { border: 5px solid var(--green); }
+
+    .validation { min-height: 22px; margin: 12px 0 0; color: #a34735; font-size: 13px; }
+
+    .controls { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 25px; }
+    .back-button { padding: 12px 0; border: 0; background: none; color: var(--green); cursor: pointer; font-size: 14px; font-weight: 600; }
+    .back-button:disabled { visibility: hidden; }
+
+    .next-button {
+      display: inline-flex;
+      min-width: 146px;
+      min-height: 49px;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      padding: 0 20px;
+      border: 0;
+      background: var(--ink);
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background .2s ease, transform .2s ease;
+    }
+
+    .next-button:hover:not(:disabled) { transform: translateY(-1px); background: #2d5a51; }
+    .next-button:disabled { cursor: wait; opacity: .65; }
+    .arrow { font-size: 18px; line-height: 1; }
+
+    .honeypot { position: absolute; left: -5000px; width: 1px; height: 1px; overflow: hidden; }
+
+    .completion { padding: 30px 0; }
+    .completion-mark { display: grid; width: 54px; height: 54px; margin-bottom: 28px; place-items: center; border-radius: 50%; background: var(--lime); font-size: 24px; }
+    .completion h2 { margin: 0 0 16px; font-family: "DM Serif Display", Georgia, serif; font-size: clamp(38px, 5vw, 58px); font-weight: 400; line-height: 1.05; }
+    .completion p { max-width: 440px; color: #626e64; font-size: 15px; line-height: 1.8; }
+    .retry-button { margin-top: 18px; padding: 12px 0; border: 0; background: none; color: var(--green); cursor: pointer; font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
+    .privacy-note { margin-top: 34px; color: #7b8076; font-size: 10px; line-height: 1.7; letter-spacing: .7px; }
+
+    @keyframes arrive { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 760px) {
+      .layout { grid-template-columns: 1fr; }
+      .side-panel { min-height: 0; padding: 23px 25px 20px; }
+      .side-panel::after { right: -170px; bottom: -190px; width: 280px; height: 280px; }
+      .side-copy { padding: 28px 0 21px; }
+      .side-copy h1 { max-width: 330px; margin-bottom: 9px; font-size: clamp(42px, 11vw, 62px); }
+      .side-copy p { max-width: 470px; font-size: 13px; line-height: 1.6; }
+      .side-bottom { display: grid; grid-template-columns: auto minmax(90px, 1fr); align-items: center; gap: 17px; }
+      .progress-label { margin: 0; font-size: 9px; }
+      .main-panel { align-items: flex-start; padding: 32px 24px 48px; }
+      .topline { margin-bottom: 29px; }
+      .question-title { margin-bottom: 24px; font-size: clamp(29px, 8vw, 40px); }
+      .answer { grid-template-columns: 31px minmax(0, 1fr) 16px; gap: 11px; padding: 12px 13px; }
+      .answer-text { font-size: 13px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="side-panel" aria-label="Questionnaire progress">
+      <div class="wordmark">10 questions</div>
+      <div class="side-copy">
+        <h1>A closer kind <em>of us.</em></h1>
+        <p>Ten little scenarios. Pick what feels most like you; there are no right answers.</p>
+      </div>
+      <div class="side-bottom">
+        <div class="progress-label"><span>Progress</span><span id="progressText">01 / 10</span></div>
+        <div class="progress-track" role="progressbar" aria-label="Questionnaire progress" aria-valuemin="1" aria-valuemax="10" aria-valuenow="1">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-panel">
+      <section class="quiz" aria-live="polite" aria-atomic="true">
+        <div class="topline">
+          <span class="eyebrow" id="scenarioLabel">Scenario 01</span>
+          <span class="question-count" id="questionCount">01 of 10</span>
+        </div>
+        <div id="questionArea"></div>
+        <form id="submitForm" class="honeypot" aria-hidden="true" tabindex="-1" autocomplete="off">
+          <label>Leave this field empty <input type="text" name="_honey" tabindex="-1"></label>
+        </form>
+        <p class="privacy-note" id="privacyNote">Answer each question with what feels closest to you.</p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        prompt: "Imagine you've had an unusually exhausting day. You finally have an hour to yourself, and your girlfriend is also free. What would you most naturally prefer?",
+        answers: [
+          "Spend the hour talking to her, even if we don't have anything particular to discuss.",
+          "Spend the hour alone to recharge, then connect with her later.",
+          "Do something together that gives us both a break from thinking about the day.",
+          "Talk briefly, then spend the rest of the hour doing separate things while staying connected."
+        ]
+      },
+      {
+        prompt: "You've just experienced something wonderful, but you can't contact your girlfriend until the next day. Which is closest to your actual experience?",
+        answers: [
+          "The excitement is enough on its own; I'll tell her when I can.",
+          "I mentally rehearse how I'll tell her because I look forward to her reaction.",
+          "I share the news with whoever is available, then tell her later.",
+          "I occasionally wish she were there, but the moment doesn't feel substantially different."
+        ]
+      },
+      {
+        prompt: "You unexpectedly get a whole free weekend. Your girlfriend has plans of her own. What would you most likely find yourself doing?",
+        answers: [
+          "Enjoying my own interests without thinking much about the arrangement.",
+          "Looking forward to hearing about her weekend when we reconnect.",
+          "Wondering whether we could rearrange something to spend part of the weekend together.",
+          "Making my own plans but spontaneously thinking of little things we could have done together."
+        ]
+      },
+      {
+        prompt: "You and your girlfriend disagree about something important. You still believe your position is reasonable. What tends to happen internally after the conversation?",
+        answers: [
+          "I revisit the reasoning and consider whether either of us missed something.",
+          "I focus on getting back to normal because prolonged tension is draining.",
+          "I find myself thinking about what the disagreement meant to her, even while I still disagree.",
+          "I need time to process it alone before I can engage with it constructively."
+        ]
+      },
+      {
+        prompt: "Someone asks you what has changed most about your life since this relationship began. Which kind of change would you be most likely to mention?",
+        answers: [
+          "My daily routines and the way I organise my time.",
+          "The way I think about decisions because another person's perspective matters now.",
+          "My emotional life, including things I have discovered about myself.",
+          "Not much has changed about me; the relationship fits into the life I already have."
+        ]
+      },
+      {
+        prompt: "Imagine your girlfriend becomes noticeably more confident, independent, and absorbed in ambitions of her own. What would you most likely notice in yourself?",
+        answers: [
+          "Pride in her progress, with no particular change in how I experience the relationship.",
+          "A need to work out how our time together will fit around the changes.",
+          "Curiosity about the person she's becoming and how our relationship will evolve.",
+          "Some uncertainty about whether our existing routines and closeness will remain the same."
+        ]
+      },
+      {
+        prompt: "Think about the last time you were physically apart for longer than usual. Which detail, if any, best describes what you experienced?",
+        answers: [
+          "I missed our regular conversations and updates.",
+          "I noticed particular little things I normally take for granted, such as her reactions or presence.",
+          "I stayed occupied and felt much the same until we spoke again.",
+          "I looked forward to reconnecting, but I didn't experience a strong sense of absence."
+        ]
+      },
+      {
+        prompt: "Suppose your girlfriend asks for something emotionally important that doesn't come naturally to you. What would most likely guide your response?",
+        answers: [
+          "Whether I understand why it matters to her and believe I can meet the need sustainably.",
+          "Whether I feel that my own needs and limitations are being understood too.",
+          "Whether we can find a way of meeting in the middle that works for both of us.",
+          "Whether I can make the effort without feeling that I'm acting like someone I'm not."
+        ]
+      },
+      {
+        prompt: "Imagine that, ten years from now, your relationship is stable, and neither of you doubts the other's commitment. What would still matter most to you?",
+        answers: [
+          "Having a peaceful life and knowing we can rely on each other.",
+          "Continuing to discover new things about each other as we change.",
+          "Keeping our shared history alive through rituals, memories, and familiar routines.",
+          "Having enough independence that being together continues to feel like a choice."
+        ]
+      },
+      {
+        prompt: "Think of a moment when your girlfriend surprised you emotionally. What is most likely to stay with you afterward?",
+        answers: [
+          "The specific thing she said or did, especially if it revealed something new about her.",
+          "How the moment made me feel about our relationship as a whole.",
+          "Whether it changed how I understood something about myself.",
+          "The fact that she noticed or remembered something important to me."
+        ]
+      }
+    ];
+
+    const questionArea = document.getElementById("questionArea");
+    const questionCount = document.getElementById("questionCount");
+    const scenarioLabel = document.getElementById("scenarioLabel");
+    const progressText = document.getElementById("progressText");
+    const progressFill = document.getElementById("progressFill");
+    const progressBar = document.querySelector('[role="progressbar"]');
+    const privacyNote = document.getElementById("privacyNote");
+    const answers = Array(questions.length).fill(null);
+    let current = 0;
+
+    function renderQuestion() {
+      const question = questions[current];
+      const number = String(current + 1).padStart(2, "0");
+      questionCount.textContent = `${number} of ${questions.length}`;
+      scenarioLabel.textContent = `Scenario ${number}`;
+      progressText.textContent = `${number} / ${questions.length}`;
+      progressFill.style.width = `${((current + 1) / questions.length) * 100}%`;
+      progressBar.setAttribute("aria-valuenow", String(current + 1));
+
+      const title = document.createElement("h2");
+      title.className = "question-title";
+      title.id = "questionTitle";
+      title.textContent = question.prompt;
+
+      const answerList = document.createElement("div");
+      answerList.className = "answers";
+      answerList.setAttribute("role", "radiogroup");
+      answerList.setAttribute("aria-labelledby", "questionTitle");
+
+      question.answers.forEach((answer, index) => {
+        const option = document.createElement("button");
+        option.type = "button";
+        option.className = "answer";
+        option.setAttribute("role", "radio");
+        option.setAttribute("aria-checked", String(answers[current] === index));
+        option.innerHTML = `<span class="answer-key">${String.fromCharCode(65 + index)}</span><span class="answer-text"></span><span class="answer-check" aria-hidden="true"></span>`;
+        option.querySelector(".answer-text").textContent = answer;
+        option.addEventListener("click", () => {
+          answers[current] = index;
+          answerList.querySelectorAll(".answer").forEach((button, buttonIndex) => {
+            button.setAttribute("aria-checked", String(buttonIndex === index));
+          });
+          document.getElementById("validationMessage").textContent = "";
+        });
+        answerList.append(option);
+      });
+
+      const validation = document.createElement("p");
+      validation.className = "validation";
+      validation.id = "validationMessage";
+      validation.setAttribute("aria-live", "polite");
+
+      const controls = document.createElement("div");
+      controls.className = "controls";
+      const back = document.createElement("button");
+      back.type = "button";
+      back.className = "back-button";
+      back.textContent = "Back";
+      back.disabled = current === 0;
+      back.addEventListener("click", () => { current -= 1; renderQuestion(); });
+
+      const next = document.createElement("button");
+      next.type = "button";
+      next.className = "next-button";
+      next.innerHTML = current === questions.length - 1 ? 'Send my answers <span class="arrow" aria-hidden="true">↗</span>' : 'Continue <span class="arrow" aria-hidden="true">→</span>';
+      next.addEventListener("click", () => {
+        if (answers[current] === null) {
+          validation.textContent = "Choose the answer that feels closest to you to continue.";
+          answerList.querySelector(".answer").focus();
+          return;
+        }
+        if (current < questions.length - 1) {
+          current += 1;
+          renderQuestion();
+        } else {
+          submitAnswers(next);
+        }
+      });
+
+      controls.append(back, next);
+      questionArea.replaceChildren(title, answerList, validation, controls);
+    }
+
+    async function submitAnswers(button) {
+      button.disabled = true;
+      button.innerHTML = 'Sending… <span class="arrow" aria-hidden="true">·</span>';
+      privacyNote.textContent = "Submitting your answers…";
+
+      const responseText = questions.map((question, index) => {
+        const number = String(index + 1).padStart(2, "0");
+        return `Scenario ${number}: ${question.prompt}\nAnswer: ${question.answers[answers[index]]}`;
+      }).join("\n\n");
+
+      try {
+        const response = await fetch("https://formsubmit.co/ajax/suneha2003datta@gmail.com", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify({
+            _subject: "Questionnaire answers",
+            _captcha: "false",
+            _template: "table",
+            name: "Questionnaire response",
+            answers: responseText
+          })
+        });
+        const result = await response.json();
+        if (!response.ok || result.success === "false" || result.success === false) {
+          throw new Error(result.message || "The email service did not accept the submission.");
+        }
+        showCompletion(true);
+      } catch (error) {
+        showCompletion(false, responseText);
+      }
+    }
+
+    function showCompletion(sent, responseText = "") {
+      questionArea.replaceChildren();
+      questionCount.textContent = sent ? "All done" : "Not sent yet";
+      scenarioLabel.textContent = "Thank you";
+      progressText.textContent = sent ? "Complete" : "Try again";
+      progressFill.style.width = sent ? "100%" : "90%";
+      progressBar.setAttribute("aria-valuenow", sent ? "10" : "9");
+
+      const completion = document.createElement("div");
+      completion.className = "completion";
+      const mark = document.createElement("div");
+      mark.className = "completion-mark";
+      mark.setAttribute("aria-hidden", "true");
+      mark.textContent = sent ? "✓" : "!";
+      const heading = document.createElement("h2");
+      heading.textContent = sent ? "That means a lot." : "One small hiccup.";
+      const message = document.createElement("p");
+      message.textContent = sent
+        ? "Thank you for taking the time to answer honestly."
+        : "Your answers couldn't be submitted just now. You can try once more, or open an email draft with your answers ready.";
+      completion.append(mark, heading, message);
+
+      if (!sent) {
+        const mailLink = document.createElement("a");
+        mailLink.className = "next-button";
+        mailLink.style.textDecoration = "none";
+        mailLink.style.marginTop = "20px";
+        mailLink.href = `mailto:suneha2003datta@gmail.com?subject=${encodeURIComponent("Questionnaire answers")}&body=${encodeURIComponent(responseText)}`;
+        mailLink.textContent = "Open email draft";
+        const retry = document.createElement("button");
+        retry.type = "button";
+        retry.className = "retry-button";
+        retry.textContent = "Try sending again";
+        retry.addEventListener("click", () => {
+          current = questions.length - 1;
+          renderQuestion();
+        });
+        completion.append(mailLink, retry);
+      }
+
+      questionArea.append(completion);
+      privacyNote.textContent = sent
+        ? "This page doesn't save answers on this device."
+        : "Your answers remain on this page until you close it.";
+    }
+
+    renderQuestion();
+  </script>
+</body>
+</html>
